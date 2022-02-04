@@ -1,4 +1,3 @@
-from rich.table import Table
 from rich.panel import Panel
 import requests as req
 from pprint import pprint
@@ -36,28 +35,8 @@ def main():
     elif res == "List Ongoing Anime":
         ongoingAnime(ongoing)
     elif res == "Show Schedule Anime":
-        print('ok')
+        print('Comming Soon')
     return True
-
-
-def generateTable(*items):
-    table = Table()
-    table.add_column("#", justify="center", style="green",
-                     header_style="yellow", no_wrap=True)
-    table.add_column("Title", justify="left", style="cyan",
-                     header_style="yellow", no_wrap=True)
-    table.add_column("Rating", justify="center", style="magenta",
-                     header_style="yellow", no_wrap=True)
-    try:
-        # iterate items, add index, and add to table then print
-        for index, item in enumerate(*items):
-            table.add_row(str(index + 1),
-                          item['title'], str(item['score']).replace('None', '-'))
-    except KeyError:
-        for index, item in enumerate(*items):
-            table.add_row(str(index + 1),
-                          item['title'], '-')
-    log.print(table)
 
 
 def allAnime(url):
@@ -84,35 +63,14 @@ def allAnime(url):
                     continue
                 allAnime(prevLink)
             elif res == "Show Detail Anime":
-                id = int(input("Which id? "))
-                # iterate items and get id
-                for index, item in enumerate(items):
-                    if index == id - 1:
-                        detailAnime(item['id'])
+                res = getDetailAnime(items)
+                detailAnime(res)
             elif res == "Watch Anime Episode":
-                animeId = int(input("Which anime id? "))
-                for index, item in enumerate(items):
-                    if index == animeId - 1:
-                        animeDetail = getAnimeDetail(item['id'])
-                        episodes = animeDetail["episode_list"]
-                        log.print(
-                            f"Episode Count {len(episodes)}", style="yellow")
-                        episodeId = int(input("Which Episode? "))
-                        for index, episode in enumerate(reversed(episodes)):
-                            if index == episodeId - 1:
-                                res = getEpisodeDetail(episode['id'])
-                                watchEpisode(res)
+                res = getAnimeEpisode(items)
+                watchEpisode(res)
             elif res == "Download Anime Episode":
-                animeId = int(input("Which anime id? "))
-                for index, item in enumerate(items):
-                    if index == animeId - 1:
-                        animeDetail = getAnimeDetail(item['id'])
-                        episodes = animeDetail["episode_list"]
-                        episodeId = int(input("Which Episode? "))
-                        for index, episode in enumerate(reversed(episodes)):
-                            if index == episodeId - 1:
-                                res = getEpisodeDetail(episode['id'])
-                                downloadEpisode(res)
+                res = getEpisodeDownload(items)
+                downloadEpisode(res)
             elif res == "Main Menu":
                 main()
             break
@@ -132,29 +90,11 @@ def ongoingAnime(url):
             res = menu(menuList, "What do you want to do?")
 
             if res == "Watch Anime Episode":
-                animeId = int(input("Which anime id? "))
-                for index, item in enumerate(items):
-                    if index == animeId - 1:
-                        animeDetail = getAnimeDetail(item['id'])
-                        episodes = animeDetail["episode_list"]
-                        log.print(
-                            f"Episode Count {len(episodes)}", style="yellow")
-                        episodeId = int(input("Which Episode? "))
-                        for index, episode in enumerate(reversed(episodes)):
-                            if index == episodeId - 1:
-                                res = getEpisodeDetail(episode['id'])
-                                watchEpisode(res)
+                res = getAnimeEpisode(items)
+                watchEpisode(res)
             elif res == "Download Anime Episode":
-                animeId = int(input("Which anime id? "))
-                for index, item in enumerate(items):
-                    if index == animeId - 1:
-                        animeDetail = getAnimeDetail(item['id'])
-                        episodes = animeDetail["episode_list"]
-                        episodeId = int(input("Which Episode? "))
-                        for index, episode in enumerate(reversed(episodes)):
-                            if index == episodeId - 1:
-                                res = getEpisodeDetail(episode['id'])
-                                downloadEpisode(res)
+                res = getEpisodeDownload(items)
+                downloadEpisode(res)
             elif res == "Main Menu":
                 main()
             break
@@ -163,7 +103,6 @@ def ongoingAnime(url):
 
 
 def detailAnime(id):
-    # table = Table.grid(padding=1)
     result = req.get(f"{anime}{id}")
     item = result.json()
     # get episode from item and iterate using for loop
@@ -234,19 +173,11 @@ def detailAnime(id):
             res = menu(menuList, "What do you want to do?")
 
             if res == "Watch Episode":
-                log.print(
-                    f"Episode Count {len(episodes)}", style="yellow")
-                episodeId = int(input("Which Episode? "))
-                for index, episode in enumerate(reversed(episodes)):
-                    if index == episodeId - 1:
-                        res = getEpisodeDetail(episode['id'])
-                        watchEpisode(res)
+                res = getEpisode(episodes)
+                watchEpisode(res)
             elif res == "Download Episode":
-                episodeId = int(input("Which Episode? "))
-                for index, episode in enumerate(reversed(episodes)):
-                    if index == episodeId - 1:
-                        res = getEpisodeDetail(episode['id'])
-                        downloadEpisode(res)
+                res = getEpisode(episodes)
+                downloadEpisode(res)
             elif res == "List All Anime":
                 allAnime(anime)
             elif res == "Search Anime":
@@ -282,19 +213,17 @@ def downloadEpisode(anime):
 
 
 def watchEpisode(episode):
+    # ubah animeId, ambil link dari all_episode (alias detail anime)
     streamLink = episode['stream_list'][0]
     hQuality = streamLink['high_quality']
     mQuality = streamLink['medium_quality']
     lQuality = streamLink['low_quality']
     nextEpisode = episode['next_eps']
     prevEpisode = episode['prev_eps']
-    animeId = nextEpisode.replace(
-        "https://samehadaku-api.herokuapp.com/api/eps/", "")
+    animeId = nextEpisode.replace(eps, "")
     animeId = "-".join(animeId.split("-")[:-2]) + '/'
-    nextEpisode = nextEpisode.replace(
-        "https://samehadaku-api.herokuapp.com/api/eps/", "")
-    prevEpisode = prevEpisode.replace(
-        "https://samehadaku-api.herokuapp.com/api/eps/", "")
+    nextEpisode = nextEpisode.replace(eps, "")
+    prevEpisode = prevEpisode.replace(eps, "")
     while True:
         try:
             qualityList = [
@@ -325,23 +254,22 @@ def watchEpisode(episode):
                         'Search Anime', 'Show All Anime']
             res = menu(menuList, "What do you want to do?")
             if res == "Next Episode":
-                res = getEpisodeDetail(nextEpisode)
+                res = generateEpisodeDetail(nextEpisode)
                 watchEpisode(res)
             if res == "Prev Episode":
-                res = getEpisodeDetail(prevEpisode)
+                res = generateEpisodeDetail(prevEpisode)
                 watchEpisode(res)
             elif res == "Select Different Episode":
-                res = getAnimeDetail(animeId)
+                res = generateAnimeDetail(animeId)
                 episodeId = int(input("Which Episode? "))
                 for index, episode in enumerate(reversed(res["episode_list"])):
                     if index == episodeId - 1:
-                        res = getEpisodeDetail(episode['id'])
+                        res = generateEpisodeDetail(episode['id'])
                         watchEpisode(res)
             elif res == "Search Anime":
                 searchAnime()
             elif res == "Show All Anime":
-                allAnime(
-                    "https://samehadaku-api.herokuapp.com/api/anime")
+                allAnime(anime)
             break
         except ValueError:
             log.print("Unknown Command", style="bold red")
@@ -361,33 +289,14 @@ def searchAnime():
             res = menu(menuList, "What do you want to do?")
 
             if res == "Show Detail Anime":
-                id = int(input("Which id? "))
-                # iterate items and get id
-                for index, item in enumerate(items):
-                    if index == id - 1:
-                        detailAnime(item['id'])
+                res = getDetailAnime(items)
+                detailAnime(res)
             elif res == "Watch Anime Episode":
-                animeId = int(input("Which anime id? "))
-                for index, item in enumerate(items):
-                    if index == animeId - 1:
-                        animeDetail = getAnimeDetail(item['id'])
-                        episodes = animeDetail["episode_list"]
-                        episodeId = int(input("Which Episode? "))
-                        for index, episode in enumerate(reversed(episodes)):
-                            if index == episodeId - 1:
-                                res = getEpisodeDetail(episode['id'])
-                                watchEpisode(res)
+                res = getAnimeEpisode(items)
+                watchEpisode(res)
             elif res == "Download Anime Episode":
-                animeId = int(input("Which anime id? "))
-                for index, item in enumerate(items):
-                    if index == animeId - 1:
-                        animeDetail = getAnimeDetail(item['id'])
-                        episodes = animeDetail["episode_list"]
-                        episodeId = int(input("Which Episode? "))
-                        for index, episode in enumerate(reversed(episodes)):
-                            if index == episodeId - 1:
-                                res = getEpisodeDetail(episode['id'])
-                                downloadEpisode(res)
+                res = getEpisodeDownload(items)
+                downloadEpisode(res)
             elif res == "Search Anime":
                 searchAnime()
             elif res == "Main Menu":
@@ -395,3 +304,7 @@ def searchAnime():
             break
         except ValueError:
             log.print("Unknown Command", style="bold red")
+
+
+if __name__ == "__main__":
+    main()

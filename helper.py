@@ -1,4 +1,5 @@
 from rich.console import Console
+from rich.table import Table
 from rich.layout import Layout
 from zippyshare_downloader import download
 import requests as req
@@ -37,6 +38,26 @@ def menu(items, msg):
     return format(response)
 
 
+def generateTable(*items):
+    table = Table()
+    table.add_column("#", justify="center", style="green",
+                     header_style="yellow", no_wrap=True)
+    table.add_column("Title", justify="left", style="cyan",
+                     header_style="yellow", no_wrap=True)
+    table.add_column("Rating", justify="center", style="magenta",
+                     header_style="yellow", no_wrap=True)
+    try:
+        # iterate items, add index, and add to table then print
+        for index, item in enumerate(*items):
+            table.add_row(str(index + 1),
+                          item['title'], str(item['score']).replace('None', '-'))
+    except KeyError:
+        for index, item in enumerate(*items):
+            table.add_row(str(index + 1),
+                          item['title'], '-')
+    log.print(table)
+
+
 def is_downloadable(url):
     """
     Does the url contain a downloadable resource
@@ -52,26 +73,37 @@ def is_downloadable(url):
 
 
 def playVideo(url):
-    if vplayer == "mpv":
-        # ref: https://stackoverflow.com/questions/12373563/python-try-block-does-not-catch-os-system-exceptions
-        if os.system(f"mpv --terminal=no {url}") != 0:
-            print('Sorry, this video player do not support video format fo this episode')
-        else:
-            return True
-    elif vplayer == "vlc":
-        print('Comming Soon')
+    if os == "nt":
+        if vplayer == "mpv":
+            # ref: https://stackoverflow.com/questions/12373563/python-try-block-does-not-catch-os-system-exceptions
+            if os.system(f"mpv.exe --terminal=no {url}") != 0:
+                print(
+                    'Sorry, this video player do not support video format fo this episode')
+            else:
+                return True
+        elif vplayer == "vlc":
+            print("Comming Soon")
     else:
-        print("There is no suppport video player. Try mpv or vlc")
+        if vplayer == "mpv":
+            # ref: https://stackoverflow.com/questions/12373563/python-try-block-does-not-catch-os-system-exceptions
+            if os.system(f"mpv --terminal=no {url}") != 0:
+                print(
+                    'Sorry, this video player do not support video format fo this episode')
+            else:
+                return True
+        elif vplayer == "vlc":
+            print("Comming Soon")
+    print("There is no suppport video player. Try mpv or vlc")
 
 
-def getAnimeDetail(id):
-    result = req.get(f"https://samehadaku-api.herokuapp.com/api/anime/{id}")
+def generateAnimeDetail(id):
+    result = req.get(f"{anime}{id}")
     item = result.json()
     return item
 
 
-def getEpisodeDetail(id):
-    result = req.get(f"https://samehadaku-api.herokuapp.com/api/eps/{id}")
+def generateEpisodeDetail(id):
+    result = req.get(f"{eps}{id}")
     item = result.json()
     return item
 
@@ -88,13 +120,13 @@ def getQualityVideo(links):
             qty = menu(qualityList, "What quality do you want to download?")
 
             if qty == "360p":
-                getLinkDownload(qty360['vendor'], links)
+                generateLinkDownload(qty360['vendor'], links)
             elif qty == "480p":
-                getLinkDownload(qty480['vendor'], links)
+                generateLinkDownload(qty480['vendor'], links)
             elif qty == "720p":
-                getLinkDownload(qty720['vendor'], links)
+                generateLinkDownload(qty720['vendor'], links)
             elif qty == "1080p":
-                getLinkDownload(qty1080['vendor'], links)
+                generateLinkDownload(qty1080['vendor'], links)
             else:
                 log.print("Resolution Not Available", style="red")
             break
@@ -102,7 +134,7 @@ def getQualityVideo(links):
             log.print("Unknown Command", style="bold red")
 
 
-def getLinkDownload(contents, links):
+def generateLinkDownload(contents, links):
     # iterate contents and check if content['link'] == 'Zippyshare' then print link
     try:
         for content in contents:
@@ -119,3 +151,46 @@ def getLinkDownload(contents, links):
         log.print(
             "File Not Available, Please Select Different Resolution or Format Video", style="bold red")
         getQualityVideo(links)
+
+
+def getAnimeEpisode(items):
+    animeId = int(input("Which anime id? "))
+    for index, item in enumerate(items):
+        if index == animeId - 1:
+            animeDetail = generateAnimeDetail(item['id'])
+            episodes = animeDetail["episode_list"]
+            log.print(
+                f"Episode Count {len(episodes)}", style="yellow")
+            episodeId = int(input("Which Episode? "))
+            for index, episode in enumerate(reversed(episodes)):
+                if index == episodeId - 1:
+                    return generateEpisodeDetail(episode['id'])
+
+
+def getDetailAnime(items):
+    id = int(input("Which id? "))
+    # iterate items and get id
+    for index, item in enumerate(items):
+        if index == id - 1:
+            return item['id']
+
+
+def getEpisodeDownload(items):
+    animeId = int(input("Which anime id? "))
+    for index, item in enumerate(items):
+        if index == animeId - 1:
+            animeDetail = generateAnimeDetail(item['id'])
+            episodes = animeDetail["episode_list"]
+            episodeId = int(input("Which Episode? "))
+            for index, episode in enumerate(reversed(episodes)):
+                if index == episodeId - 1:
+                    return generateEpisodeDetail(episode['id'])
+
+
+def getEpisode(items):
+    log.print(
+        f"Episode Count {len(items)}", style="yellow")
+    episodeId = int(input("Which Episode? "))
+    for index, episode in enumerate(reversed(items)):
+        if index == episodeId - 1:
+            return generateEpisodeDetail(episode['id'])
