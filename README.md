@@ -9,7 +9,7 @@ Tired of watching anime but lots of ads? Samehadaku-CLI is the solution!.
 - Show Update Schedule Anime
 - Search Anime
 - Show Detail Anime
-- Watch Anime Per Episode _(for now, use [mpv](https://mpv.io/installation/) video player, next will be added [vlc](https://www.videolan.org/))_
+- Watch Anime Per Episode _(using [mpv](https://mpv.io/installation/) video player)_
 - Download Anime Per Episode
 
 #### The Reason Behind Making This App
