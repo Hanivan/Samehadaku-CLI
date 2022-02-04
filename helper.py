@@ -73,7 +73,7 @@ def is_downloadable(url):
 
 
 def playVideo(url):
-    if os == "nt":
+    if os.name == "nt":
         if vplayer == "mpv":
             # ref: https://stackoverflow.com/questions/12373563/python-try-block-does-not-catch-os-system-exceptions
             if os.system(f"mpv.exe --terminal=no {url}") != 0:
