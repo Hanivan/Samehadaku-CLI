@@ -14,7 +14,7 @@ Tired of watching anime but lots of ads? Samehadaku-CLI is the solution!.
 
 #### The Reason Behind Making This App
 
-Because I like watching anime. I'm sometimes bothered by annoying ads. So I decided to make the restAPI first, then this application was created, and this application is made based on hobbies, so I do not guarantee this application runs as it should. So just enjoy. I will also update this application later
+Because I like watching anime. I'm sometimes bothered by annoying ads. So I decided to make the [restAPI](https://github.com/Hanivan/restAPI-Samehadaku) first, then this application was created, and this application is made based on hobbies, so I do not guarantee this application runs as it should. So just enjoy. I will also update this application later
 
 ### How To Use
 
