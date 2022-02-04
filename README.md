@@ -6,7 +6,7 @@ Tired of watching anime but lots of ads? Samehadaku-CLI is the solution!.
 
 - List All Anime
 - List Ongoing Anime
-- Show Update Schedule Anime
+- List Schedule Anime
 - Search Anime
 - Show Detail Anime
 - Watch Anime Per Episode _(using [mpv](https://mpv.io/installation/) video player)_
