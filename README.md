@@ -72,6 +72,9 @@ pip install -r requirements.txt
 
 4. Start The Development
 
+### Note
+This application only support Linux Operating System. それだけ
+
 ## Development Detail
 
 **Start Work**: Monday, 31 January 2022; 16:-- WIB<br>
